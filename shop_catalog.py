@@ -53,6 +53,7 @@ def add_new_item():
     '''Функція для додавання нового предмета/продукта в каталог'''
     code = random.randrange(10000000, 99999999)
     new_product = Product(input("What is your product's type? "), input("What is your product's name? "), input("What is your product's price? "), input("What is your product's expire data? (type it like this 15/10/2025) "), code)
+    #Перевіряю чи правильно написана дата та чи срок годності дійсний
     try:
         check_expire_data(new_product)
     except Exception:
