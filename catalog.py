@@ -26,60 +26,63 @@
 import random
 from datetime import datetime
 
-
-def check_expire_data(product) -> bool:
-    '''Функція для перевірки чи ще термін придатності дійсний'''
-    expire_date = datetime.strptime(product.expdate, "%d/%m/%Y")
-    present = datetime.now()
-    if expire_date.date() > present.date():
-        print("Next product:")
-        x = True
-    else:
-        print("Your product has expired")
-        x = False
-    return x
-
-
 #Список в якому будуть зберігатися продукти
 products = []
 
 
-#Головний клас продукта
 class Products:
+    '''Батьківський клас продуктів'''
     def __init__(self, pname, price):
         self.name = pname
         self.price = price
         self.code = random.randrange(10000000, 99999999)
 
+    def check_expire_data(product) -> bool:
+        '''Функція для перевірки чи ще термін придатності дійсний'''
+        expire_date = datetime.strptime(product.expdate, "%d/%m/%Y")
+        present = datetime.now()
+        if expire_date.date() > present.date():
+            print("Next product:")
+            x = True
+        else:
+            print("Your product has expired")
+            x = False
+        return x
+
 
 #Підкласи продуктів
 class Fruits(Products):
+    '''Клас фруктів'''
     def __init__(self, name, price):
         self.product_type = "Fruits"
         super().__init__(name, price)
 
 
 class Vegetables(Products):
+    '''Клас овочів'''
     def __init__(self, name, price):
         self.product_type = "Vegetables"
         super().__init__(name, price)
 
 
 class CannedGoods(Products):
+    '''Клас консервованих виробів'''
     def __init__(self, name, price, expdate):
         self.product_type = "Canned goods"
-        super().__init__(name, price)
         self.expdate = expdate
+        super().__init__(name, price)
 
 
 class Sweets(Products):
+    '''Клас солодощів'''
     def __init__(self, name, price, expdate):
         self.product_type = "Sweets"
-        super().__init__(name, price)
         self.expdate = expdate
+        super().__init__(name, price)
 
 
 class BreadGoods(Products):
+    '''Клас хлібних виробів'''
     def __init__(self, name, price,):
         self.product_type = "Bread goods"
         super().__init__(name, price)

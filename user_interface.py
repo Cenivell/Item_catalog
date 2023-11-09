@@ -1,18 +1,10 @@
-import main
+import catalog
 import os
-
-
-def print_products():
-    '''Функція для виписування продуктів в консоль'''
-    for product in main.products:
-        # Вивів срок придатності продукта в змінну для того щоб могти нормально перевірити чи присутній срок придатності в продукті
-        expdate_info = f" Expire data: {product.expdate}" if hasattr(product, 'expdate') else ""
-        print(f"Type: {product.product_type} Name: {product.name} Price: {product.price} {expdate_info} Code: {product.code}")
 
 
 def write_products():
     '''Функція для виписування продуктів в файл'''
-    for product in main.products:
+    for product in catalog.products:
         # Вивів срок придатності продукта в змінну для того щоб могти нормально перевірити чи присутній срок придатності в продукті
         expdate_info = f" Expire data: {product.expdate}" if hasattr(product, 'expdate') else ""
         file.write(f"\nType: {product.product_type} Name: {product.name} Price: {product.price} {expdate_info} Code: {product.code} ")
@@ -29,39 +21,36 @@ while product_type != "0":
         print("Product type was redeemed incorrectly")
     if product_type == '1':
         price = f'{input("Enter product price per kilo: ")} per kilo'
-        product = main.Fruits(name, price)
-        main.products.append(product)
+        product = catalog.Fruits(name, price)
+        catalog.products.append(product)
     elif product_type == '2':
         price = f'{input("Enter product price per kilo: ")} per kilo'
-        product = main.Vegetables(name, price)
-        main.products.append(product)
+        product = catalog.Vegetables(name, price)
+        catalog.products.append(product)
     elif product_type == '3':
         price = f'{input("Enter product price per item: ")} per item'
         expdate = input("What is your product's expire date? (type it like this 15/10/2025): ")
-        product = main.CannedGoods(name, price, expdate)
+        product = catalog.CannedGoods(name, price, expdate)
         try:
-            if main.check_expire_data(product):
-                main.products.append(product)
+            if catalog.Products.check_expire_data(product):
+                catalog.products.append(product)
         except Exception:
             print("Expire date was redeemed incorrectly")
     elif product_type == '4':
         price = f'{input("Enter product price per kilo: ")} per kilo'
         expdate = input("What is your product's expire date? (type it like this 15/10/2025): ")
-        product = main.Sweets(name, price, expdate)
+        product = catalog.Sweets(name, price, expdate)
         try:
-            if main.check_expire_data(product):
-                main.products.append(product)
+            if catalog.Products.check_expire_data(product):
+                catalog.products.append(product)
         except Exception:
             print("Expire date was redeemed incorrectly")
     elif product_type == '5':
         price = f'{input("Enter product price per item: ")} per item'
-        product = main.BreadGoods(name, price)
-        main.products.append(product)
+        product = catalog.BreadGoods(name, price)
+        catalog.products.append(product)
 
-print("Here is a list of products that you created:")
-print_products()
-
-print("Do you wish to write them into a .txt file")
+print("Do you wish to write the list into a .txt file")
 answer = input("type Y or N ").lower()
 if answer == "y":
     print("Do you wish to use manual directory input? If not then script's directory will be used")
