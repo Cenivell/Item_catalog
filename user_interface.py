@@ -2,12 +2,13 @@ import catalog
 import os
 
 
-def write_products():
+def write_products(file):
     '''Функція для виписування продуктів в файл'''
-    for product in catalog.products:
-        # Вивів срок придатності продукта в змінну для того щоб могти нормально перевірити чи присутній срок придатності в продукті
-        expdate_info = f" Expire data: {product.expdate}" if hasattr(product, 'expdate') else ""
-        file.write(f"\nType: {product.product_type} Name: {product.name} Price: {product.price} {expdate_info} Code: {product.code} ")
+    with open(file, 'a') as file:
+        for product in catalog.products:
+            # Вивів срок придатності продукта в змінну для того щоб могти нормально перевірити чи присутній срок придатності в продукті
+            expdate_info = f" Expire data: {product.expdate}" if hasattr(product, 'expdate') else ""
+            file.write(f"\nCode: {product.code} Name: {product.name} Price: {product.price} {expdate_info} Type: {product.product_type} ")
 
 
 product_type = ""
@@ -58,15 +59,15 @@ if answer == "y":
     if answer == "y":
         file_directory = input("Please redeem the directory of the file you are going to use (example D:\list\goods) ")
         file = f'{file_directory}.txt'
+        write_products(file)
     elif answer == "n":
         file_directory = os.getcwd()
         file_name = input("Please redeem your file's name ")
         file = f'{file_directory}\{file_name}.txt'
+        write_products(file)
     else:
         print("You have to print either Y or N")
-        exit(0)
-    with open(file, 'a') as file:
-        write_products()
 elif answer == "n":
     print("Terminated")
-    exit()
+else:
+    print("You have to print either Y or N")
