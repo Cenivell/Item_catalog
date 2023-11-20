@@ -37,9 +37,9 @@ class Products:
         self.price = price
         self.code = random.randrange(10000000, 99999999)
 
-    def check_expire_data(product) -> bool:
+    def check_expire_data(self) -> bool:
         '''Функція для перевірки чи ще термін придатності дійсний'''
-        expire_date = datetime.strptime(product.expdate, "%d/%m/%Y")
+        expire_date = datetime.strptime(self.expdate, "%d/%m/%Y")
         present = datetime.now()
         if expire_date.date() > present.date():
             print("Next product:")
