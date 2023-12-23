@@ -1,14 +1,20 @@
 import catalog
-import os
+import psycopg2
+from psql_connection_config import host, user, db_name
 
 
-def write_products(file):
-    '''Функція для виписування продуктів в файл'''
-    with open(file, 'a') as file:
+def add_products_to_the_database():
+    '''Функція для виписування продуктів в базу даних'''
+    with connection.cursor() as cursor:
         for product in catalog.products:
-            # Вивів срок придатності продукта в змінну для того щоб могти нормально перевірити чи присутній срок придатності в продукті
-            expdate_info = f" Expire data: {product.expdate}" if hasattr(product, 'expdate') else ""
-            file.write(f"\nCode: {product.code} Name: {product.name} Price: {product.price} {expdate_info} Type: {product.product_type} ")
+            # Вивів срок придатності продукта в змінну для того щоб можна було нормально перевірити, чи присутній срок придатності в продукті
+            expdate_info = product.expdate if hasattr(product, 'expdate') else ""
+            cursor.execute(
+                """INSERT INTO item_catalog (code, name, price, expire_date, type) VALUES
+                (%s, %s, %s, %s, %s);""",
+                (product.code, product.name, product.price, expdate_info, product.product_type)
+            )
+        print("Data was successfully inserted to the database")
 
 
 product_type = ""
@@ -51,23 +57,42 @@ while product_type != "0":
         product = catalog.BreadGoods(name, price)
         catalog.products.append(product)
 
-print("Do you wish to write the list into a .txt file")
+
+print("Do you wish to write the list into a database?")
 answer = input("type Y or N ").lower()
 if answer == "y":
-    print("Do you wish to use manual directory input? If not then script's directory will be used")
-    answer = input("type Y or N ").lower()
-    if answer == "y":
-        file_directory = input("Please redeem the directory of the file you are going to use (example D:\list\goods) ")
-        file = f'{file_directory}.txt'
-        write_products(file)
-    elif answer == "n":
-        file_directory = os.getcwd()
-        file_name = input("Please redeem your file's name ")
-        file = f'{file_directory}\{file_name}.txt'
-        write_products(file)
-    else:
-        print("You have to print either Y or N")
+    try:
+        # connect to exist database
+        connection = psycopg2.connect(
+            host=host,
+            user=user,
+            password=input("Please redeem your database password (You can change other parameters such as database name, user and host inside the config file) "),
+            database=db_name
+        )
+
+        connection.autocommit = True
+
+        try:
+            with connection.cursor() as cursor:
+                 cursor.execute(
+                     """CREATE TABLE item_catalog(
+                         code INT PRIMARY KEY,
+                         name varchar(50) NOT NULL,
+                         price varchar(50) NOT NULL,
+                         expire_date varchar(50),
+                         type varchar(50) NOT NULL);"""
+                 )
+            print("A new table was successfully created")
+        except Exception:
+            pass
+        add_products_to_the_database()
+    except Exception as _ex:
+        print("Error while working with PostgreSQL", _ex)
+    finally:
+        if connection:
+            connection.close()
+            print("PostgreSQL connection was successfully closed")
 elif answer == "n":
     print("Terminated")
 else:
-    print("You have to print either Y or N")
+    print("You had to print either Y or N")
