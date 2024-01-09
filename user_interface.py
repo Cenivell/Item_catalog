@@ -1,28 +1,9 @@
 import os
 import catalog
 try:
-    from psql_connection import connection
+    from psql_connection import connection, table_exists, code
 except Exception as ex:
     print("Failed while connecting to psql (try adjusting the psql connection config file). Error: ", ex)
-
-# Checking if the table exists
-try:
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'item_catalog');")
-        table_exists = cursor.fetchone()[0]
-        # If table exists finding out what is the biggest code in the table to generate unique codes
-        if table_exists:
-            cursor.execute("""SELECT MAX(code) FROM item_catalog;""")
-            code = cursor.fetchone()[0]
-            # If the table exist but doesn't have any product set the code to 9999999
-            if code is None:
-                code = 9999999
-            print(code)
-        # If the table doesn't exist set the code to 9999999
-        else:
-            code = 9999999
-except Exception as exc:
-    print("Error while working with PSQL ", exc)
 
 product_type = ""
 while product_type != "0":
@@ -92,7 +73,7 @@ elif answer == "n":
     print("Proceeding to the next step")
 else:
     print("You had to print either Y or N. Proceeding to the next step")
-print("Do you wish to write the database into a txt file??")
+print("Do you wish to write the database into a txt file?")
 answer = input("type Y or N ").lower()
 if answer == "y":
     print("Do you wish to use manual directory input? If not then script's directory will be used")
