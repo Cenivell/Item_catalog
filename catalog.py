@@ -62,11 +62,13 @@ class Products:
                 for product in products:
                     # Вивів срок придатності продукта в змінну для того щоб можна було нормально перевірити, чи присутній срок придатності в продукті
                     expdate_info = product.expdate if hasattr(product, 'expdate') else None
+                    if expdate_info is not None:
+                        expdate_info_str = f"'{expdate_info}'"
+                    else:
+                        expdate_info_str = "NULL"
                     cursor.execute(
-                        """INSERT INTO item_catalog (code, name, price, unit_of_measurement, expire_date, type) VALUES
-                        (%s, %s, %s, %s, %s, %s);""",
-                        (product.code, product.name, product.price, product.unit_of_measurement, expdate_info,
-                         product.product_type)
+                        f"""INSERT INTO item_catalog (code, name, price, unit_of_measurement, expire_date, type) VALUES
+                        ({product.code}, '{product.name}', {product.price}, '{product.unit_of_measurement}', {expdate_info_str}, '{product.product_type}');"""
                     )
                 print("Data was successfully inserted to the database")
         except Exception as e_:
