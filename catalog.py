@@ -42,6 +42,13 @@ from datetime import datetime
 
 #Список в якому будуть зберігатися продукти
 products = []
+product_types_dict = {
+    "1": "Fruits",
+    "2": "Vegetables",
+    "3": "Canned goods",
+    "4": "Sweets",
+    "5": "Bread goods"
+}
 
 
 class Products:

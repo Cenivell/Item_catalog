@@ -5,98 +5,71 @@ try:
 except Exception as ex:
     print("Failed while connecting to psql (try adjusting the psql connection config file). Error: ", ex)
 
+
+def edit_existing_product_value(new_value_name, code):
+    new_value = input(f"Redeem a new product {new_value_name} ")
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"""UPDATE item_catalog 
+                SET {new_value_name}='{new_value}' 
+                WHERE code='{code}'""")
+    except Exception as e:
+        print(f"Error while changing product {new_value_name}. ", e)
+
+
 code = ""
 answer = ""
-while code != "0":
-    code = input('Please redeem an 8-digit code of the product you want to add or edit (type "0" if you want to exit): ')
+while code != 0:
+    try:
+        code = int(input('Please redeem an 8-digit code of the product you want to add or edit (type "0" if you want to exit): '))
+    except Exception:
+        print("Make sure your code is 8-DIGIT")
     # Checking if a code meets the requirements
-    if code.isdigit() and len(code) == 8:
-        with connection.cursor() as cursor:
-            # Checking if a redeemed code belongs to already existing product in the database
-            if table_exists:
-                cursor.execute(f"""SELECT EXISTS(SELECT * FROM item_catalog WHERE code='{code}');""")
-                product_exists = cursor.fetchone()[0]
-        # If a product with the redeemed code already exists enter a product editor
-        if product_exists:
-            print("Product with the code you redeemed already exists. Here is the information about it.")
+    if len(str(code)) == 8:
+        if table_exists:
             try:
                 with connection.cursor() as cursor:
-                    cursor.execute(f"SELECT * FROM item_catalog WHERE code='{code}';")
-                    rows = cursor.fetchall()
-                    column_names = [desc[0] for desc in cursor.description]
-                for row in rows:
-                    for i in range(len(row)):
-                        print(f"{column_names[i]}: {row[i]}; ")
+                    # Checking if a redeemed code belongs to already existing product in the database
+                    cursor.execute(f"""SELECT EXISTS(SELECT * FROM item_catalog WHERE code='{code}');""")
+                    product_exists = cursor.fetchone()[0]
+                     # If a product with the redeemed code already exists enter a product editor
+                    if product_exists:
+                        print("Product with the code you redeemed already exists.")
+                        answer = input("If you want to edit it type '1', to delete it type '2', type '0' if you wanna use a new code ")
+                        if answer == '1':
+                            while answer != '0':
+                                answer = input("Which value do you wish to edit? '1' - name, '2' - price, '3' - unit of measurement, '4' - expire data, '5' - type, '0' to exit ")
+                                if answer == '1':
+                                    edit_existing_product_value("name", code)
+                                elif answer == '2':
+                                    edit_existing_product_value("price", code)
+                                elif answer == '3':
+                                    edit_existing_product_value("unit_of_measurement", code)
+                                elif answer == '4':
+                                    edit_existing_product_value("expire_date", code)
+                                elif answer == '5':
+                                    edit_existing_product_value("type", code)
+                                elif answer == '0':
+                                    print("Exiting for product editor")
+                                else:
+                                    print("You have to type any digit from 0 to 5!")
+                        elif answer == '2':
+                            try:
+                                with connection.cursor() as cursor:
+                                       cursor.execute(f"""DELETE FROM item_catalog WHERE code='{code}';""")
+                                print("Product was successfully deleted")
+                            except Exception as e:
+                                    print("Error while trying to delete a product. ", e)
+                        elif answer == '0':
+                            print("Exiting product editor")
+                        else:
+                            print("You had to print a digit from 0 to 2")
             except Exception as ex_:
-                print("An error occurred while trying to write the database into a txt file ", ex_)
-            answer = input("If you want to edit it type '1', to delete it type '2', type '0' if you wanna use a new code ")
-            if answer == '1':
-                while answer != '0':
-                    answer = input("Which value do you wish to edit? '1' - name, '2' - price, '3' - unit of measurement, '4' - expire data, '5' - type, '0' to exit ")
-                    if answer == '1':
-                        try:
-                            with connection.cursor() as cursor:
-                                cursor.execute(
-                                    f"""UPDATE item_catalog 
-                                    SET name='{input("Redeem a new product name ")}' 
-                                    WHERE code='{code}'""")
-                        except Exception as e:
-                            print("Error while changing product name. ", e)
-                    elif answer == '2':
-                        try:
-                            with connection.cursor() as cursor:
-                                cursor.execute(
-                                    f"""UPDATE item_catalog 
-                                    SET price='{input("Redeem a new product price ")}' 
-                                    WHERE code='{code}'""")
-                        except Exception as e:
-                            print("Error while changing product price. Remember price should be a number. ", e)
-                    elif answer == '3':
-                        try:
-                            with connection.cursor() as cursor:
-                                cursor.execute(
-                                    f"""UPDATE item_catalog 
-                                       SET unit_of_measurement='{input("Redeem a new product unit of measurement ")}' 
-                                      WHERE code='{code}'""")
-                        except Exception as e:
-                             print("Error while changing product unit of measurement. ", e)
-                    elif answer == '4':
-                        try:
-                            with connection.cursor() as cursor:
-                                cursor.execute(
-                                    f"""UPDATE item_catalog 
-                                    SET expire_date='{input("Redeem a new product expire date. Follow this format 25/10/2025 ")}' 
-                                    WHERE code='{code}'""")
-                        except Exception as e:
-                            print("Error while changing product expire date. Make sure to use dd/mm/yyyy format!", e)
-                    elif answer == '5':
-                        try:
-                            with connection.cursor() as cursor:
-                                cursor.execute(
-                                    f"""UPDATE item_catalog 
-                                     SET type='{input("Redeem a new product type ")}' 
-                                    WHERE code='{code}'""")
-                        except Exception as e:
-                            print("Error while changing product type. ", e)
-                    elif answer == '0':
-                        print("Exiting for product editor")
-                    else:
-                        print("You have to type any digit from 0 to 5!")
-            elif answer == '2':
-                try:
-                    with connection.cursor() as cursor:
-                           cursor.execute(f"""DELETE FROM item_catalog WHERE code='{code}';""")
-                    print("Product was successfully deleted")
-                except Exception as e:
-                        print("Error while trying to delete a product. ", e)
-            elif answer == '0':
-                print("Exiting product editor")
-            else:
-                print("You had to print a digit from 0 to 2")
-
-        else:
+                print("An error occurred while working with SQL ", ex_)
+        if not product_exists:
             product_type = input("Enter product type  (type '1' if Fruit, '2' if Vegetable, '3' if Canned good, '4' if Sweets, '5' if Bread goods): ")
-            if product_type in map(str, range(1, 6)):
+            if product_type in catalog.product_types_dict:
                 name = input("Enter product name: ")
             else:
                 print("Product type was redeemed incorrectly")
@@ -130,7 +103,7 @@ while code != "0":
                 price = input("Enter product price per item: ")
                 product = catalog.BreadGoods(name, price, code)
                 catalog.products.append(product)
-    elif code == "0":
+    elif code == 0:
         print("Proceeding to the next step")
     else:
         print("Code was redeemed incorrectly")
